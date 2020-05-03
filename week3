@@ -1,0 +1,144 @@
+### 1066. 校园自行车分配 II
+在由 2D 网格表示的校园里有 n 位工人（worker）和 m 辆自行车（bike），n <= m。所有工人和自行车的位置都用网格上的 2D 坐标表示。
+
+我们需要为每位工人分配一辆自行车。在所有可用的自行车和工人中，我们选取彼此之间曼哈顿距离最短的工人自行车对 (worker, bike) ，并将其中的自行车分配給工人。如果有多个 (worker, bike) 对之间的曼哈顿距离相同，那么我们选择工人索引最小的那对。类似地，如果有多种不同的分配方法，则选择自行车索引最小的一对。不断重复这一过程，直到所有工人都分配到自行车为止。
+
+给定两点 p1 和 p2 之间的曼哈顿距离为 Manhattan(p1, p2) = |p1.x - p2.x| + |p1.y - p2.y|。
+
+返回长度为 n 的向量 ans，其中 a[i] 是第 i 位工人分配到的自行车的索引（从 0 开始）。
+
+class Solution:
+    def assignBikes(self, workers: List[List[int]], bikes: List[List[int]]) -> List[int]:
+        n, m = len(workers), len(bikes)
+        def dis(a,b):
+            return abs(a[0] - b[0]) + abs(a[1]-b[1])
+        
+        mem = list()
+        for i in range(n):
+            for j in range(m):
+                mem.append((dis(workers[i],bikes[j]),i,j))
+        mem.sort()
+        
+        res = [0]*n
+        seenx, seeny = set(),set()
+        
+        for it in mem:
+            im,jm = it[1], it[2]
+            if im in seenx or ij in seenj:
+                continue
+            
+            res[im] = jm
+            seenx.add(im)
+            seeny.add(jm)
+        return res
+        
+        
+        
+### 1236. Web Crawler（Medium）
+Given a url startUrl and an interface HtmlParser, implement a web crawler to crawl all links that are under the same hostname as startUrl.
+
+Return all urls obtained by your web crawler in any order.
+
+#### 解题思路
+使用集合记录出现过的URL
+
+将新的待检查的URL单独存放，直到待检查URL集合为空为止
+
+class Solution:
+    def crawl(self, startUrl: str, htmlParser: 'HtmlParser') -> List[str]:
+        host_name = "/".join(startUrl.split("/")[:3])
+
+        ans_set = {startUrl, }
+        check_set = {startUrl, }
+        while check_set:
+            next_check = set()
+            for url in check_set:
+                for next_url in htmlParser.getUrls(url):
+                    if next_url.startswith(host_name) and next_url not in ans_set:
+                        next_check.add(next_url)
+                        ans_set.add(next_url)
+            check_set = next_check
+        return list(ans_set)
+        
+        
+        
+        
+### 489. Robot Room Cleaner(hard)
+Given a robot cleaner in a room modeled as a grid.
+
+Each cell in the grid can be empty or blocked.
+
+The robot cleaner with 4 given APIs can move forward, turn left or turn right. Each turn it made is 90 degrees.
+
+When it tries to move into a blocked cell, its bumper sensor detects the obstacle and it stays on the current cell.
+
+Design an algorithm to clean the entire room using only the 4 given APIs shown below.
+
+interface Robot {
+  // returns true if next cell is open and robot moves into the cell.
+  // returns false if next cell is obstacle and robot stays on the current cell.
+  boolean move();
+
+  // Robot will stay on the same cell after calling turnLeft/turnRight.
+  // Each turn will be 90 degrees.
+  void turnLeft();
+  void turnRight();
+
+  // Clean the current cell.
+  void clean();
+}
+Example:
+
+Input:
+room = [
+  [1,1,1,1,1,0,1,1],
+  [1,1,1,1,1,0,1,1],
+  [1,0,1,1,1,1,1,1],
+  [0,0,0,1,0,0,0,0],
+  [1,1,1,1,1,1,1,1]
+],
+row = 1,
+col = 3
+
+Explanation:
+All grids in the room are marked by either 0 or 1.
+0 means the cell is blocked, while 1 means the cell is accessible.
+The robot initially starts at the position of row=1, col=3.
+From the top left corner, its position is one row below and three columns right.
+
+#### 解法：DFS + Backtracking
+
+Different from regular dfs to visit all, the robot move() function need to be called, backtrack needs to move() manually and backtracking path shold not be blocked by visited positions
+- IMPORTANT: Mark on the way in using set, but `backtrack directly without re-check against set`
+- Backtrack: turn 2 times to revert, move 1 step, and turn 2 times to revert back.
+
+#### 由于不知道初始位置，就用相对位置做。开始位置设为（0，0），相对+，-1即可。还要注意机器人要回去的时候，也就是回溯的那一步，需要转180度。也就是两次turn right/left
+
+class Solution(object):
+    def cleanRoom(self, robot):
+        """
+        :type robot: Robot
+        :rtype: None
+        """
+        directions = [(0,1),(0，-1),(-1，0),(1,0)]
+        
+        def goBack(robot):
+            robot.turnLeft()
+            robot.turnLeft()
+            robot.move()
+            robot.turnRight()
+            robot.turnRight()
+        
+        def def(pos, robot, d, visited):
+            if pos in visited:
+                return
+            visited.add(pos)
+            
+            robot.clean
+            for _ in directions:
+                if robot.move():
+                    dfs(pos[0]+directions[d][0],pos[1]+directions[d][1],robot, d, visited)
+                    goBack(robot)
+                robot.turnRight() #按照右下左上的顺时针顺序遍历
+                d = (d + 1) % 4 #防止越界
+        dfs((0,0), robot, 0, set())
