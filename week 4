@@ -1,0 +1,78 @@
+159. Longest Substring with At Most Two Distinct Characters 
+Given a string s , find the length of the longest substring t  that contains at most 2 distinct characters.
+
+Example 1:
+
+Input: "eceba"
+Output: 3
+Explanation: tis "ece" which its length is 3.
+Example 2:
+
+Input: "ccaabbb"
+Output: 5
+Explanation: tis "aabbb" which its length is 5.
+
+#### 滑动窗口，和904题思路一样
+class Solution:
+    def lengthOfLongestSubstringTwoDistinct(self, s):
+        ans = i = 0
+        count = collections.Counter()
+        for j, x in enumerate(s):
+            count[x] += 1
+            while len(count) >= 3:
+                count[s[i]] -= 1 #左窗口向右滑
+                if count[s[i]] == 0:
+                    del count[s[i]]
+                i += 1
+            ans = max(ans, j - i + 1)
+        return ans
+
+
+723. Candy Crush(Medium)
+This question is about implementing a basic elimination algorithm for Candy Crush.
+
+Given a 2D integer array board representing the grid of candy, different positive integers board[i][j] represent different types of candies. A value of board[i][j] = 0 represents that the cell at position (i, j) is empty. The given board represents the state of the game following the player's move. Now, you need to restore the board to a stable state by crushing candies according to the following rules:
+
+If three or more candies of the same type are adjacent vertically or horizontally, "crush" them all at the same time - these positions become empty.
+After crushing all candies simultaneously, if an empty space on the board has candies on top of itself, then these candies will drop until they hit a candy or bottom at the same time. (No new candies will drop outside the top boundary.)
+After the above steps, there may exist more candies that can be crushed. If so, you need to repeat the above steps.
+If there does not exist more candies that can be crushed (ie. the board is stable), then return the current board.
+You need to perform the above rules until the board becomes stable, then return the current board.
+
+#### 思路
+如果一个元素可以被crash，则我们首先将其置为负数。这样在判断某个元素是否可以被crash的时候，我们就判断它的纵向或者横向是否存在三个连续的位置，其值不为0，并且绝对值相同。如果可以被crash，则将其置为原数对应的负数。这样在后面crash的时候，我们只需要保留正数，而将所有的非正数都置为0。
+
+class Solution(object):
+    def candyCrush(self, board):
+        """
+        :type board: List[List[int]]
+        :rtype: List[List[int]]
+        """
+        R, C = len(board), len(board[0])
+        changed = True
+ 
+        while changed:
+            changed = False
+ 
+            for r in range(R):
+                for c in range(C-2):
+                    if abs(board[r][c]) == abs(board[r][c+1]) == abs(board[r][c+2]) != 0:
+                        board[r][c] = board[r][c+1] = board[r][c+2] = -abs(board[r][c])
+                        changed = True
+ 
+            for r in range(R-2):
+                for c in range(C):
+                    if abs(board[r][c]) == abs(board[r+1][c]) == abs(board[r+2][c]) != 0:
+                        board[r][c] = board[r+1][c] = board[r+2][c] = -abs(board[r][c])
+                        changed = True
+ 
+            for c in range(C):
+                i = R-1
+                for r in reversed(range(R)):
+                    if board[r][c] > 0:
+                        board[i][c] = board[r][c]
+                        i -= 1
+                for r in reversed(range(i+1)):
+                    board[r][c] = 0
+ 
+        return board　
