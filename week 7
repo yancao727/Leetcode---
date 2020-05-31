@@ -1,0 +1,105 @@
+### 1181. 前后拼接
+给你一个「短语」列表 phrases，请你帮忙按规则生成拼接后的「新短语」列表。
+
+「短语」（phrase）是仅由小写英文字母和空格组成的字符串。「短语」的开头和结尾都不会出现空格，「短语」中的空格不会连续出现。
+
+「前后拼接」（Before and After puzzles）是合并两个「短语」形成「新短语」的方法。我们规定拼接时，第一个短语的最后一个单词 和 第二个短语的第一个单词 必须相同。
+
+返回每两个「短语」 phrases[i] 和 phrases[j]（i != j）进行「前后拼接」得到的「新短语」。
+
+注意，两个「短语」拼接时的顺序也很重要，我们需要同时考虑这两个「短语」。另外，同一个「短语」可以多次参与拼接，但「新短语」不能再参与拼接。
+
+请你按字典序排列并返回「新短语」列表，列表中的字符串应该是 不重复的 。
+
+#### 思路：
+
+1. 遍历phrases，将每个phrase的第一个单词和最后一个单词作为key建立哈希表，val是phrase，
+
+2. 注意建好之后要把两个哈希表的同一个key对应的val， 排一下序。
+
+3. 然后遍历以最后一个单词为key的哈希表，在另一个哈希表里找存不存在相同的key即可。
+
+class Solution(object):
+    def beforeAndAfterPuzzles(self, phrases):
+        """
+        :type phrases: List[str]
+        :rtype: List[str]
+        """
+        from collections import defaultdict
+        
+        start = defaultdict(list)
+        end = defaultdict(list)
+        for i, phrase in enumerate(phrases): #建立哈希表
+            t = phrase.split(" ")
+            start[t[0]].append((phrase, i))
+            end[t[-1]].append((phrase, i))
+            
+        res = []
+ 
+        for key, val in end.items():
+            val.sort() #排序保证答案满足字典序排列
+        for key, val in start.items():
+            val.sort() #排序保证答案满足字典序排列
+            
+        for end_word, p1 in end.items():
+            if end_word in start: #找到可以拼接的部分
+                for s1, i1 in p1:
+                    for s2, i2 in start[end_word]:
+                        if i1 == i2: #满足题目给的 其他 这个条件
+                            continue
+                        if len(s2.split(" ")) == 1: #如果s2只有一个单词构成，那么直接返回s1
+                            tmp = s1
+                        else:
+                            tmp = s1 + " " + " ".join(s2.split(" ")[1:])
+                        if tmp not in res:
+                            res.append(tmp)
+        
+        res.sort()
+        return res
+
+
+### 158. Read N Characters Given Read4 II - Call multiple times
+
+The API: int read4(char *buf) reads 4 characters at a time from a file.
+
+The return value is the actual number of characters read. For example, it returns 3 if there is only 3 characters left in the file.
+
+By using the read4 API, implement the function int read(char *buf, int n) that reads n characters from the file.
+
+class Solution:
+    def __init__(self):
+        self.buf4 = [''] * 4
+        self.curr_used = 0
+        self.curr_read = 0
+        self.EOF = False
+    
+    def read(self, bud, n):
+        num_read = 0
+        while num_read < n and nnot self.EOF:
+            if self.curr_used == self.curr_read:
+                self.curr_read = read4(self.buf4)
+                self.curr_used = 0
+                if self.curr_read == 0: self.EOF = True
+            else:
+                delta = min(self.curr_read - self.curr_used, n-num_read)
+                buf[num_read:num_read+delta] = self.buf4[sekf.curr_used:self.curr_used + delta]
+                
+                num_read += delta
+                self.curr_read += delta
+        return num_read
+
+### 340. Longest Substring with At Most K Distinct Characters
+问题描述：给定一个字符串s，找到至多包含k个不同字符得最长子串的长度。
+
+比如s="cebea"，k=2，那么输出结果就是3，因为此时"ebe"满足条件：至多包含两个不同字符，且子串最长
+
+比如s="world"，k=4，那么输出结果就是4，因为"worl"和"orld"满足条件：至多包含4个不同字符，且子串最长
+
+class Solution:
+    def lengthOfLongestSubstringKDistinct(self, s, k):
+        tmp = 0 #用于记录满足条件得最大值
+        for i in range(1,len(s)+1):#步长从1到len(s)+1
+            for j in range(len(s)-i+1):#窗口左端
+                if len(set(s[j:j+i])) == k:#如果窗口中取集合后的不同字符就是k个
+                    tmp = max(tmp,i)#更新tmp的值
+        return tmp #最后返回即可
