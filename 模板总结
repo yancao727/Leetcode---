@@ -8,3 +8,6 @@ class DSU:
         return self.p[x]
     def union(self,x,y):
         self.p[self.find(x)] = self.find(y)
+
+最小生成树问题，使用Kruskal算法：
+https://blog.csdn.net/qq_17550379/article/details/97616811
