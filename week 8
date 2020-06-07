@@ -1,0 +1,329 @@
+### 425. Word Squares
+
+Given a set of words (without duplicates), find all word squares you can build from them.
+
+A sequence of words forms a valid word square if the kth row and column read the exact same string, where 0 ≤ k < max(numRows, numColumns).
+
+For example, the word sequence ["ball","area","lead","lady"] forms a word square because each word reads the same both horizontally and vertically.
+
+b a l l
+a r e a
+l e a d
+l a d y
+
+class Solution(object):
+    def wordSquares(self, words):
+        """
+        :type words: List[str]
+        :rtype: List[List[str]]
+        """
+        m = len(words)
+        n = len(words[0]) if m else 0
+        mdict = collections.defaultdict(set)
+        for word in words:
+            for i in range(n):
+                mdict[word[:i]].add(word)
+        matrix = []
+        ans = []
+        def search(word, line):
+            matrix.append(word)
+            if line == n:
+                ans.append(matrix[:])
+            else:
+                prefix = ''.join(matrix[x][line] for x in range(line))
+                for word in mdict[prefix]:
+                    search(word, line + 1)
+            matrix.pop() #???
+        for word in words:
+            search(word, 1)
+        return ans
+
+### 642.Design Search Autocomplete System !!!!
+为搜索引擎设计一个搜索自动完成系统。用户可以输入一个句子(至少一个单词，并以一个特殊的字符'#'结尾)。对于除'#'之外的每个字符，您需要返回与已输入的句子部分前缀相同的前3个历史热门句子。
+
+class TrieNode:
+    def __init__(self):
+        self.children = dict()
+        self.sentences = set()
+ 
+class AutocompleteSystem(object):
+ 
+    def __init__(self, sentences, times):
+        """
+        :type sentences: List[str]
+        :type times: List[int]
+        """
+        self.buffer = ''
+        self.stimes = collections.defaultdict(int)
+        self.trie = TrieNode()
+        for s, t in zip(sentences, times):
+            self.stimes[s] = t
+            self.addSentence(s)
+        self.tnode = self.trie
+ 
+    def input(self, c):
+        """
+        :type c: str
+        :rtype: List[str]
+        """
+        ans = []
+        if c != '#':
+            self.buffer += c
+            if self.tnode: self.tnode = self.tnode.children.get(c)
+            if self.tnode: ans = sorted(self.tnode.sentences, key=lambda x: (-self.stimes[x], x))[:3]
+        else:
+            self.stimes[self.buffer] += 1
+            self.addSentence(self.buffer)
+            self.buffer = ''
+            self.tnode = self.trie
+        return ans
+ 
+    def addSentence(self, sentence):
+        node = self.trie
+        for letter in sentence:
+            child = node.children.get(letter)
+            if child is None:
+                child = TrieNode()
+                node.children[letter] = child
+            node = child
+            child.sentences.add(sentence)
+
+### 323.Number of Connected Components in an Undirected Graph
+给定编号从 0 到 n-1 的 n 个节点和一个无向边列表（每条边都是一对节点），请编写一个函数来计算无向图中连通分量的数目。
+
+示例 1:
+
+输入: 
+n = 5
+ 和 
+edges = [[0, 1], [1, 2], [3, 4]]
+
+
+     0          3
+     |          |
+     1 --- 2    4 
+
+输出: 2
+
+class UnionFindSet(object):
+    def __init__(self, m):
+ 
+        # m, n = len(grid), len(grid[0])
+        self.roots = [i for i in range(m)]
+        self.rank = [0 for i in range(m)]
+        self.count = m
+        
+        for i in range(m):
+            self.roots[i] = i
+ 
+    def find(self, member):
+        tmp = []
+        while member != self.roots[member]:
+            tmp.append(member)
+            member = self.roots[member]
+        for root in tmp:
+            self.roots[root] = member
+        return member
+        
+    def union(self, p, q):
+        parentP = self.find(p)
+        parentQ = self.find(q)
+        if parentP != parentQ:
+            if self.rank[parentP] > self.rank[parentQ]:
+                self.roots[parentQ] = parentP
+            elif self.rank[parentP] < self.rank[parentQ]:
+                self.roots[parentP] = parentQ
+            else:
+                self.roots[parentQ] = parentP
+                self.rank[parentP] -= 1
+            self.count -= 1
+ 
+class Solution(object):
+    def countComponents(self, n, edges):
+        """
+        :type n: int
+        :type edges: List[List[int]]
+        :rtype: int
+        """
+        
+        ufs = UnionFindSet(n)
+        # print ufs.roots
+        for edge in edges:
+            start, end = edge[0], edge[1]
+            ufs.union(start, end)
+            
+        return ufs.count
+
+### 737. Sentence Similarity II
+#### 题目大意：
+给定两组单词words1和words2，以及一组相似单词对pairs，相似性可以传递，判断words1与words2中的单词是否两两相似。
+
+方法一：合并查
+class DSU:
+    def __init__(self, N):
+        self.par = {i:i for i in range(N)}
+    def find(self, x):
+        if self.par[x] != x:
+            self.par[x] = self.find(self.par[x])
+        return self.par[x]
+    def union(self, x, y):
+        self.par[self.find(x)] = self.find(y)
+ 
+class Solution(object):
+    def areSentencesSimilarTwo(self, words1, words2, pairs):
+        if len(words1) != len(words2): return False
+ 
+        index = {}
+        count = itertools.count()
+        dsu = DSU(2 * len(pairs))
+        for pair in pairs:
+            for p in pair:
+                if p not in index:
+                    index[p] = next(count)
+            dsu.union(index[pair[0]], index[pair[1]])
+ 
+        return all(w1 == w2 or
+                   w1 in index and w2 in index and
+                   dsu.find(index[w1]) == dsu.find(index[w2])
+                   for w1, w2 in zip(words1, words2))
+
+### 1135. Connecting Cities With Minimum Cost
+#### 题目大意
+想象一下你是个城市基建规划者，地图上有 N 座城市，它们按以 1 到 N 的次序编号。
+给你一些可连接的选项 conections，其中每个选项 conections[i] = [city1, city2, cost] 表示将城市 city1 和城市 city2 连接所要的成本。（连接是双向的，也就是说城市 city1 和城市 city2 相连也同样意味着城市 city2 和城市 city1 相连）。
+返回使得每对城市间都存在将它们连接在一起的连通路径（可能长度为 1 的）最小成本。该最小成本应该是所用全部连接代价的综合。如果根据已知条件无法完成该项任务，则请你返回 -1。
+#### 解题思路
+对于无法连接所有城市的情况我们只需要通过通过判断connections中边的数目是不是比最小生成树中点的数目N-1少即可。
+
+class Solution:
+    def minimumCost(self, N: int, connections: List[List[int]]) -> int:  
+        if len(connections) < N - 1:
+            return -1
+        connections.sort(key=lambda a : a[2]) #按权重排序
+        parent = [i for i in range(N)]
+        
+        def find(x):
+            if x != parent[x]:
+                parent[x] = find(parent[x])
+            return parent[x]
+        
+        res, e, k = 0, 0, 0
+        while e < N - 1:
+            u, v, w = connections[k]
+            k += 1
+            x, y = find(u-1), find(v-1)
+            if x != y:
+                e += 1
+                res += w
+                parent[x] = y
+        return res
+
+### 1061. Lexicographically Smallest Equivalent String
+Given strings A and B of the same length, we say A[i] and B[i] are equivalent characters. For example, if A = "abc" and B = "cde", then we have 'a' == 'c', 'b' == 'd', 'c' == 'e'.
+
+Equivalent characters follow the usual rules of any equivalence relation:
+
+Reflexivity: 'a' == 'a'
+Symmetry: 'a' == 'b' implies 'b' == 'a'
+Transitivity: 'a' == 'b' and 'b' == 'c' implies 'a' == 'c'
+For example, given the equivalency information from A and B above, S = "eed", "acd", and "aab" are equivalent strings, and "aab" is the lexicographically smallest equivalent string of S.
+
+Return the lexicographically smallest equivalent string of S by using the equivalency information from A and B.
+
+class DSU:
+    def __init__(self,n):
+        self.p = {i:i for i in range(n)}
+    def find(self,x):
+        if self.p[x] != x:
+            self.p[x] = self.find(self.p[x])
+        return self.p[x]
+    def union(self,x,y):
+        self.p[self.find(x)] = self.find(y)
+
+class Solution:
+    def smallestEquivalentString(self,a:string,b:string,s:string):
+        if not a or not s:
+            return ""
+        
+        n = len(a)
+        tree = DSU(n)
+        for i in range(n):
+            ra = DSU.find(a[i])
+            rb = DSU.find(b[i])
+            if ra > rb: #把小的字母作为父节点
+                DSU.union(a, b)
+            else:
+                DSU.union(b, a)
+        res = []
+        for i in range(len(s)):
+            res.append(DSU.find(s[i]))
+        return "".join(res)
+
+
+### 305: Number of Islands II
+A 2d grid map of m rows and n columns is initially filled with water. We may perform an addLand operation which turns the water at position (row, col) into a land. Given a list of positions to operate, count the number of islands after each addLand operation. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.
+
+class Solution(object):
+    def numIslands2(self, n, m, positions):
+        """
+        :type m: int
+        :type n: int
+        :type positions: List[List[int]]
+        :rtype: List[int]
+        """
+        
+        def find(res, p):
+            while p != res[p]:
+                p = res[p]
+                res[p] = res[res[p]]
+            return p
+        
+        def connected(res, p, q):
+            return find(res, p) == find(res, q)
+        
+        def union(res, p, q):
+            pid = find(res, p)
+            qid = find(res, q)
+            res[pid] = qid
+        
+        res = [i for i in range(m*n)]
+        visited = [0 for i in range(m*n)]
+        out = []
+        grid = [[0]*m for i in range(n)]
+        
+        count = 0
+        counter = 0
+        for i, j in positions:
+            counter += 1
+            index = i * m + j
+            if visited[index] == 1:
+                count -= 1
+            grid[i][j] = 1                   
+            queue = [index]            
+            while queue: 
+                temp = queue.pop(0)
+                visited[temp] = 1
+                r = temp / m
+                c = temp % m
+                if r - 1 >= 0 and grid[r-1][c] == 1:
+                    if not connected(res, temp, ((r-1)*m+c)):
+                        union(res, temp, ((r-1)*m+c))
+                        queue.append((r-1)*m+c)
+                        count -= 1
+                if r + 1 < n and grid[r+1][c] == 1:
+                    if not connected(res, temp, ((r+1)*m+c)):
+                        union(res, temp, ((r+1)*m+c))
+                        queue.append((r+1)*m+c)
+                        count -= 1
+                if c - 1 >= 0 and grid[r][c-1] == 1:
+                    if not connected(res, temp, (r*m+c-1)):
+                        union(res, temp, (r*m+c-1))
+                        queue.append(r*m+c-1)
+                        count -= 1
+                if c + 1 < m and grid[r][c+1] == 1:
+                    if not connected(res, temp, (r*m+c+1)):
+                        union(res, temp, (r*m+c+1))
+                        queue.append(r*m+c+1) 
+                        count -= 1
+            out.append(counter + count)
+        return out
