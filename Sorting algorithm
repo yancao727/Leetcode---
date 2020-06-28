@@ -1,0 +1,300 @@
+Bubble Sort
+Time complex: O(n2)
+Space complex: O(1)
+
+def bubbleSort(alist):
+    passnum = len(alist) - 1
+    exchanges = True
+    while passnum > 0 and exchanges:
+        exchanges = False
+        for i in range(passnum):
+            if alist[i] > alist[i + 1]:
+                exchanges = True 
+                alist[i], alist[i + 1] = alist[i + 1], alist[i]
+            passnum -= 1
+alist = [20, 18, 34, 89, 56, 79]
+bubbleSort(alist)
+print(alist)
+
+### Selection Sort
+#### 每一趟记录最大项所在的位置,与最后一位进行交换
+#### Time complex: O(n2)
+#### Space complex: O(1)
+
+def selectionSort(alist):
+    for fillslot in range(len(alist)-1, 0, -1):
+        positionofMax = 0
+        for location in range(1, fillslot + 1):
+            if alist[location] > alist[positionofMax]:
+                positionofMax = location
+        alist[fillslot], alist[positionofMax] = alist[positionofMax], alist[fillslot]
+    
+alist = [20, 18, 34, 89, 56, 79]
+selectionSort(alist)
+print(alist)  
+
+### Insertion Sort
+#### 插扑克牌
+#### Time complex: O(n~n2)
+#### Space complex: O(1)
+
+def insertionSort(alist):
+    for i in range(1, len(alist)):
+        curVal = alist[i]
+        curPosition = i
+        while curPosition > 0 and alist[curPosition - 1] > alist[curPosition]:
+            alist[curPosition] = alist[curPosition - 1]
+            curPosition -= 1
+        alist[curPosition] = curVal
+alist = [20, 18, 34, 89, 56, 79]
+insertionSort(alist)
+print(alist)    
+
+### Counting Sort
+#### Time complex: O(n)
+#### Space complex: O(n)
+
+def countingSort(array, max_val): 
+    m = max_val + 1
+    count = [0] * m 
+    for a in array:
+        count[a] += 1
+    i = 0
+    for a in range(m):
+        for j in range(count[a]):
+            array[i] = a
+            i += 1
+    return array
+
+print(countingSort( [1, 2, 7, 3, 2, 1, 4, 2, 3, 2, 1], 7 ))
+
+### Bucket Sort
+#### Time complex: O(n)
+#### Space complex: O(n)
+
+def insertionSort(b): 
+    for i in range(1, len(b)): 
+        up = b[i] 
+        j = i - 1
+        while j >=0 and b[j] > up:  
+            b[j + 1] = b[j] 
+            j -= 1
+        b[j + 1] = up      
+    return b      
+              
+def bucketSort(x): 
+    arr = [] 
+    slot_num = 10 # 10 means 10 slots, each 
+                  # slot's size is 0.1 
+    for i in range(slot_num): 
+        arr.append([]) 
+          
+    # Put array elements in different buckets  
+    for j in x: 
+        index_b = int(slot_num * j)  
+        arr[index_b].append(j) 
+      
+    # Sort individual buckets  
+    for i in range(slot_num): 
+        arr[i] = insertionSort(arr[i]) 
+          
+    # concatenate the result 
+    k = 0
+    for i in range(slot_num): 
+        for j in range(len(arr[i])): 
+            x[k] = arr[i][j] 
+            k += 1
+    return x 
+  
+# Driver Code 
+x = [0.897, 0.565, 0.656, 
+     0.1234, 0.665, 0.3434]  
+print("Sorted Array is") 
+print(bucketSort(x)) 
+
+### Merch Sort
+#### Time complex: O(nlogn)
+#### Space complex: O(n)
+
+def mergeSort(alist):
+    if len(alist) <= 1:
+        return alist
+    middle = len(alist)//2
+    left = mergeSort(alist[:middle])
+    right = mergeSort(alist[middle:])
+    merge = []
+    while left and right:
+        merge.append(left.pop(0) if left[0] < right[0] else right.pop(0))
+    merge.extend(right if right else left)
+    return merge
+
+alist = [20, 18, 34, 89, 56, 79]
+mergeSort(alist)        
+
+### Quick Sort
+#### Time complex: O(nlogn)
+#### Space complex: O(1)
+
+def quickSort(alist):
+    quickSortHelper(alist, 0, len(alist))
+def quickSortHelper(alist, fist, last):
+    if first < last:
+        splitpoint = partition(alist, first, last)
+        SortHelper(alist, fist, splitpoint)
+        SortHelper(alist,splitpoint + 1, last)
+def partition(alist, first, last):
+    pivot = alist[first]
+    left = first + 1
+    right = last
+    done = False
+    while not done:
+        while left <= right and alist[left] <= pivot:
+            left += 1
+        while left <= right and alist[right] >= pivot:
+            right -= 1
+        if right > left:
+            done = True
+        else:
+            alist[left], alist[right] = alist[right], alist[left]
+    alist[first], alist[right] = alist[right], alist[first]
+    return right
+alist = [20, 18, 34, 89, 56, 79]
+shellSort(alist)
+print(alist) 
+
+### Heap Sort
+#### Time Complexity: Time complexity of heapify is O(Logn). Time complexity of createAndBuildHeap() is O(n) and overall time complexity of Heap Sort is O(nLogn).
+
+# To heapify subtree rooted at index i. 
+# n is size of heap 
+def heapify(arr, n, i): 
+    largest = i # Initialize largest as root 
+    l = 2 * i + 1     # left = 2*i + 1 
+    r = 2 * i + 2     # right = 2*i + 2 
+  
+    # See if left child of root exists and is 
+    # greater than root 
+    if l < n and arr[i] < arr[l]: 
+        largest = l 
+  
+    # See if right child of root exists and is 
+    # greater than root 
+    if r < n and arr[largest] < arr[r]: 
+        largest = r 
+  
+    # Change root, if needed 
+    if largest != i: 
+        arr[i],arr[largest] = arr[largest],arr[i] # swap 
+  
+        # Heapify the root. 
+        heapify(arr, n, largest) 
+  
+# The main function to sort an array of given size 
+def heapSort(arr): 
+    n = len(arr) 
+  
+    # Build a maxheap. 
+    for i in range(n//2 - 1, -1, -1): 
+        heapify(arr, n, i) 
+  
+    # One by one extract elements 
+    for i in range(n-1, 0, -1): 
+        arr[i], arr[0] = arr[0], arr[i] # swap 
+        heapify(arr, i, 0) 
+  
+# Driver code to test above 
+arr = [ 12, 11, 13, 5, 6, 7] 
+heapSort(arr) 
+n = len(arr) 
+print ("Sorted array is") 
+for i in range(n): 
+    print ("%d" %arr[i]), 
+
+
+from heapq import heappop, heappush
+def heap_sort(array):
+    heap = []
+    for element in array:
+        heappush(heap, element)
+
+    ordered = []
+
+    # While we have elements left in the heap
+    while heap:
+        ordered.append(heappop(heap))
+
+    return ordered
+
+array = [13, 21, 15, 5, 26, 4, 17, 18, 24, 2]
+print(heap_sort(array))
+
+### Radix Sort
+#### Time complex: O(d(n+k))
+#### Space complex: O(n)
+ 
+ def countingSort(array, place):
+    size = len(array)
+    output = [0] * size
+    count = [0] * 10
+
+    # Calculate count of elements
+    for i in range(0, size):
+        index = array[i] // place
+        count[index % 10] += 1
+
+    # Calculate cummulative count
+    for i in range(1, 10):
+        count[i] += count[i - 1]
+
+    # Place the elements in sorted order
+    i = size - 1
+    while i >= 0:
+        index = array[i] // place
+        output[count[index % 10] - 1] = array[i]
+        count[index % 10] -= 1
+        i -= 1
+
+    for i in range(0, size):
+        array[i] = output[i]
+
+
+# Main function to implement radix sort
+def radixSort(array):
+    # Get maximum element
+    max_element = max(array)
+
+    # Apply counting sort to sort elements based on place value.
+    place = 1
+    while max_element // place > 0:
+        countingSort(array, place)
+        place *= 10
+
+
+data = [121, 432, 564, 23, 1, 45, 788]
+radixSort(data)
+print(data)
+
+###Shell Sort
+####以插入排序为基础，先将间隔为K的nums排序
+####Time complex: O(n3/2)
+####Space complex: O(1)
+
+def shellSort(alist):
+    sublistcount = len(alist)//2
+    while sublistcount > 0:
+        for startposition in range(sublistcount):
+            gapInsert(alist, startposition, sublistcount)
+        sublistcount //= 2
+
+def gapInsert(alist, start, gap):
+    for i in range(start + gap, len(alist), gap):
+        curVal = alist[i]
+        curPos = i
+        while curPos >= gap and alist[curPos - gap] > curVal:
+            alist[curPos] = alist[curPos - gap]
+            curPos -= gap
+        alist[curPos] = curVal
+
+alist = [20, 18, 34, 89, 56, 79]
+shellSort(alist)
+print(alist) 
