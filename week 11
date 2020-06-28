@@ -1,0 +1,76 @@
+252. Meeting Rooms
+Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), determine if a person could attend all meetings.
+
+Example 1:
+
+Input: [[0,30],[5,10],[15,20]] Output: false Example 2:
+
+Input: [[7,10],[2,4]] Output: true
+
+# Definition for an interval.
+# class Interval:
+#     def __init__(self, s=0, e=0):
+#         self.start = s
+#         self.end = e
+class Solution:
+    def canAttendMeetings(self, intervals):
+        """
+        :type intervals: List[Interval]
+        :rtype: bool
+        """
+        intervals.sort(key=lambda a: a.start)
+        for i in range(len(intervals)-1):
+            if intervals[i].end > intervals[i+1].start:
+                return False
+        return True
+
+253. Meeting Rooms II
+Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],…] (si < ei), find the minimum number of conference rooms required.
+
+Example 1:
+
+Input: [[0, 30],[5, 10],[15, 20]] Output: 2 Example 2:
+
+Input: [[7,10],[2,4]] Output: 1
+
+class Solution(object):
+    def minMeetingRooms(self, intervals):
+        """
+        :type intervals: List[Interval]
+        :rtype: int
+        """
+        # sort the intervals by start time
+        intervals.sort(key = lambda x: x.start)
+        heap = []
+        for interval in intervals:
+            if heap and interval.start >= heap[0]:
+                # room is already used in last meeting and continue to use the same room for this meeting
+                heapq.heapreplace(heap, interval.end)
+                
+            else:
+                heapq.heappush(heap, interval.end)
+                
+        return len(heap)
+
+
+280. Wiggle Sort
+给你一个无序的数组 nums, 将该数字 原地 重排后使得 nums[0] <= nums[1] >= nums[2] <= nums[3]...。
+
+示例:
+
+输入: nums = [3,5,2,1,6,4] 输出: 一个可能的解答是 [3,5,1,6,2,4]
+
+遍历nums, 如果偶数index的值比下一个值大, 则交换位置; 如果奇数index的值比下一个值小, 则交换位置.
+Time: O(n) Space: O(1)
+
+class Solution:
+    def wiggleSort(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: void Do not return anything, modify nums in-place instead.
+        """
+        for i in range(len(nums)-1):
+            if i%2 == 1 and nums[i]< nums[i+1]:
+                nums[i], nums[i+1] = nums[i+1], nums[i]
+            elif i%2 == 0 and nums[i]> nums[i+1]:
+                nums[i], nums[i+1] = nums[i+1], nums[i]
