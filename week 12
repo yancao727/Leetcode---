@@ -1,0 +1,81 @@
+###296: Best Meeting Point
+A group of two or more people wants to meet and minimize the total travel distance. 
+You are given a 2D grid of values 0 or 1, where each 1 marks the home of someone in the group. 
+The distance is calculated using Manhattan Distance, where distance (p1, p2) = |p2.x - p1.x| + |p2.y - p1.y|.
+
+class Solution(object):
+    def minTotalDistance(self, grid):
+        """
+        :type grid: List[List[int]]
+        :rtype: int
+        """
+        if len(grid) == 0 or len(grid[0]) == 0:
+            return 0
+
+        x = list()
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 1:
+                    x.append(i)
+
+        if len(x) == 0:
+            return 0
+
+        size = len(x)
+        y = list()
+        for j in range(len(grid[0])):
+            for i in range(len(grid)):
+                if grid[i][j] == 1:
+                    y.append(j)
+
+        if size % 2 == 1:
+            X, Y = x[size // 2], y[size // 2]
+        else:
+            xm = sum(x[size // 2 - 1:size // 2 + 1]) / 2
+            ym = sum(y[size // 2 - 1:size // 2 + 1]) / 2
+
+            def round(a):
+                floor = int(a)
+                if a - floor < floor + 1 - a:
+                    return floor
+                else:
+                    return floor + 1
+
+            X, Y = round(xm), round(ym)
+
+        return sum([abs(X - x_) for x_ in x]) + sum([abs(Y - y_) for y_ in y])
+
+
+### 356. Line Reflection
+Given n points on a 2D plane, find if there is such a line parallel to y-axis that reflect the given points.
+Example 1: Given points = [[1,1],[-1,1]], return true.
+Example 2: Given points = [[1,1],[-1,-1]], return false.
+Follow up: Could you do better than O(n2)?
+
+class Solution(object):
+    def isReflected(self, points):
+        """
+        :type points: List[List[int]]
+        :rtype: bool
+        """
+        
+        if not points or not points[0]: return True
+        rgxVal = [x for x,y in points]
+        minxVal = min(rgxVal)
+        maxxVal = max(rgxVal)
+        pairxVal = minxVal + maxxVal
+        pairSet = {}
+
+        for pair in points:
+            xVal, yVal = pair
+            if xVal == pairxVal/2.0: continue
+            curPair = (xVal, yVal)
+            pairRef = (pairxVal-xVal, yVal)
+
+            if pairRef in pairSet:
+                pairSet[pairRef] -= 1
+            else:
+                pairSet[curPair] = 1
+        for val in pairSet.values():
+            if val == 1: return False
+        return True
