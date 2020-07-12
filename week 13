@@ -1,0 +1,77 @@
+### 256. 粉刷房子
+假如有一排房子，共 n 个，每个房子可以被粉刷成红色、蓝色或者绿色这三种颜色中的一种，你需要粉刷所有的房子并且使其相邻的两个房子颜色不能相同。
+
+当然，因为市场上不同颜色油漆的价格不同，所以房子粉刷成不同颜色的花费成本也是不同的。每个房子粉刷成不同颜色的花费是以一个 n x 3 的矩阵来表示的。
+
+例如，costs[0][0] 表示第 0 号房子粉刷成红色的成本花费；costs[1][2] 表示第 1 号房子粉刷成绿色的花费，以此类推。请你计算出粉刷完所有房子最少的花费成本。
+
+示例：
+
+输入: [[17,2,17],[16,16,5],[14,3,19]]
+输出: 10
+解释: 将 0 号房子粉刷成蓝色，1 号房子粉刷成绿色，2 号房子粉刷成蓝色。
+     最少花费: 2 + 5 + 3 = 10。
+       
+class Solution(object):
+    def minCost(self, costs):
+        """
+        :type costs: List[List[int]]
+        :rtype: int
+        """
+        if not costs:
+            return 0
+        dp = costs
+        for i in range(1, len(costs)):
+            dp[i][0] += min(dp[i - 1][1], dp[i - 1][2])
+            dp[i][1] += min(dp[i - 1][0], dp[i - 1][2])
+            dp[i][2] += min(dp[i - 1][0], dp[i - 1][1])
+        return min(dp[-1])
+        
+     
+### 276. Paint Fence
+There is a fence with n posts, each post can be painted with one of the k colors.
+You have to paint all the posts such that no more than two adjacent fence posts have the same color.
+Return the total number of ways you can paint the fence.
+
+Note:
+n and k are non-negative integers.
+
+Example:
+Input: n = 3, k = 2
+Output: 6
+
+
+class Solution:
+    def numWays(self, n: 'int', k: 'int') -> 'int':
+        # base case
+        if n == 0: return 0
+        if n == 1: return k
+        # when n == 2
+        same, diff = k, k*(k-1)
+        for i in range(3, n+1):
+            same, diff = diff, (same + diff)*(k-1)
+        return same + diff
+             
+
+### 1230. 抛掷硬币
+
+有一些不规则的硬币。在这些硬币中，prob[i] 表示第 i 枚硬币正面朝上的概率。
+请对每一枚硬币抛掷 一次，然后返回正面朝上的硬币数等于 target 的概率。
+
+class Solution(object):
+    def probabilityOfHeads(self, prob, target):
+        """
+        :type prob: List[float]
+        :type target: int
+        :rtype: float
+        """
+        dp = [[0 for _ in range(len(prob) + 1)] for _ in range(len(prob))]
+        # dp[i][j] 表示前i个硬币里，有j个硬币正面朝上的概率
+        dp[0][1] = prob[0]
+        dp[0][0] = 1 - prob[0]
+        for i, p in enumerate(prob):
+            for j in range(target + 1):
+                if i > 0:
+                    dp[i][j] += dp[i - 1][j] * (1 - p) # 当前硬币正面朝下
+                    dp[i][j] += dp[i - 1][j - 1] * (p) # 当前硬币正面朝上
+        return dp[-1][target]
