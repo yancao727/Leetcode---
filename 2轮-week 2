@@ -1,0 +1,119 @@
+# 727
+Given strings S and T, find the minimum (contiguous) substring W of S, so that T is a subsequenceof W.
+
+If there is no such window in S that covers all characters in T, return the empty string "". If there are multiple such minimum-length windows, return the one with the left-most starting index.
+
+Example 1:
+
+Input: 
+S = "abcdebdde", T = "bde"
+Output: "bcde"
+Explanation: 
+"bcde" is the answer because it occurs before "bdde" which has the same length.
+"deb" is not a smaller window because the elements of T in the window must occur in order.
+Note:
+
+All the strings in the input will only contain lowercase letters.
+The length of S will be in the range [1, 20000].
+The length of T will be in the range [1, 100].
+
+class Solution(object):
+    def minWindow(self, S, T):
+        """
+        :type S: str
+        :type T: str
+        :rtype: str
+        """
+        ans = ''
+        ls, lt = len(S), len(T)
+        dp = [-1] * lt
+        for x in range(ls):
+            for y in range(lt - 1, -1, -1):
+                if T[y] == S[x]:
+                    dp[y] = dp[y - 1] if y else x
+                    if y == lt - 1 and dp[-1] > -1:
+                        nlen = x - dp[-1] + 1
+                        if not ans or nlen < len(ans):
+                            ans = S[dp[-1] : x+1]
+        return ans
+        
+        
+ # 759 Employee Free Time
+We are given a list schedule of employees, which represents the working time for each employee. Each employee has a list of non-overlapping Intervals, and these intervals are in sorted order.
+Return the list of finite intervals representing common, positive-length free time for all employees, also in sorted order.
+
+Example 1:
+Input: schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]
+Output: [[3,4]]
+Explanation:
+There are a total of three employees, and all common
+free time intervals would be [-inf, 1], [3, 4], [10, inf].
+We discard any intervals that contain inf as they aren't finite.
+
+Example 2:
+Input: schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]
+Output: [[5,6],[7,9]]
+
+(Even though we are representing Intervals in the form [x, y], the objects
+inside are Intervals, not lists or arrays. For example, schedule[0][0].start = 1
+, schedule[0][0].end = 2, and schedule[0][0][0] is not defined.)
+Also, we wouldn't include intervals like [5, 5] in our answer, as they have zero length.
+
+Note:
+schedule and schedule[i] are lists with lengths in range [1, 50].
+0 <= schedule[i].start < schedule[i].end <= 10^8.
+"""
+
+class Solution:
+    def employeeFreeTime(self, schedule: List[List[List[int]]]) -> List[List[int]]:
+        cur_list = []
+        for i in range(len(List)):
+            for j in range(len(List[i])):
+                cur_list.append(List[i][j])
+        cur_list.sort()
+        ans = []
+        for i in range(1, len(cur_list)):
+            if cur_list[i][0] > cur_list[i-1][1]:
+                ans.append([cur_list[i-1][1],cur_list[i][0]])
+            else:
+                continue
+        return ans    
+        
+      
+ # 1522 Diameter of N-Ary Tree
+Given a root of an N-ary tree, you need to compute the length of the diameter of the tree.
+
+The diameter of an N-ary tree is the length of the longest path between any two nodes in the tree. This path may or may not pass through the root.
+
+(Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value.)
+
+# Definition for a Node.
+class Node(object):
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children if children is not None else []
+        
+class Solution(object):
+    def diameter(self, root):
+        """
+        :type root: 'Node'
+        :rtype: int
+        """
+        maxDiameter = 0
+        def maxHeight(node):
+            if node.children is None: return 0
+            firstMaxHeight, secondMaxHeight = 0, 0 
+            for child in node.children:
+                height = maxHeight(child)
+                if height > firstMaxHeight:
+                    secondMaxHeight = firstMaxHeight
+                    firstMaxHeight = height
+                elif height > secondMaxHeight:
+                    secondMaxHeight = height
+            
+            maxDiameter = max(maxDiameter, firstMaxHeight + secondMaxHeight)
+            return firstMaxHeight + 1
+            
+        
+        maxHeight(root)
+        return maxDiameter
