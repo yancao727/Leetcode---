@@ -117,3 +117,7 @@ class Solution(object):
         
         maxHeight(root)
         return maxDiameter
+ 
+tree = Node([1,null,3,2,4,null,5,6])
+ans = Solution.diameter(tree[0])
+print(ans)
