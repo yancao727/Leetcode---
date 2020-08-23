@@ -1,0 +1,248 @@
+# 545. Boundary of Binary Tree
+Given a binary tree, return the values of its boundary in anti-clockwise direction starting from root. Boundary includes left boundary, leaves, and right boundary in order without duplicate nodes.
+
+Left boundary is defined as the path from root to the left-most node. Right boundary is defined as the path from root to the right-most node. If the root doesn’t have left subtree or right subtree, then the root itself is left boundary or right boundary. Note this definition only applies to the input binary tree, and not applies to any subtrees.
+
+The left-most node is defined as a leaf node you could reach when you always firstly travel to the left subtree if exists. If not, travel to the right subtree. Repeat until you reach a leaf node.
+
+The right-most node is also defined by the same way with left and right exchanged.
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+    def boundaryOfBinaryTree(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+        def leftBoundary(node):
+            if not node or (node.left is None and node.right is None):
+                return 
+            b.append(node.val)
+            if node.left:
+                leftBoundary(node.left)
+            else:
+                leftBoundary(node.right)
+            
+        def leaves(node):
+            if not node:
+                return
+            leaves(node.left)
+            if node != root and node.left is None and node.right is None:
+                b.append(node.val)
+            
+            leaves(node.right)
+            
+        def rightBoundary(node):
+            if not node or (node.left is None and node.right is None):
+                return            
+            if node.right:
+                rightBoundary(node.right)
+            else:
+                rightBoundary(node.left)
+            b.append(node.val)
+            
+        
+        # base case
+        if not root: return []
+        b = [root.val]
+        leftBoundary(root.left)
+        leaves(root)
+        rightBoundary(root.right)
+        return b
+        
+
+# 305. Number of Islands II
+A 2d grid map of m rows and n columns is initially filled with water. 
+We may perform an addLand operation which turns the water at position (row, col) into a land. 
+Given a list of positions to operate, count the number of islands after each addLand operation. 
+An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. 
+You may assume all four edges of the grid are all surrounded by water.
+class Solution(object):
+    def numIslands2(self, n, m, positions):
+        """
+        :type m: int
+        :type n: int
+        :type positions: List[List[int]]
+        :rtype: List[int]
+        """
+        
+        def find(res, p):
+            while p != res[p]:
+                p = res[p]
+                res[p] = res[res[p]]
+            return p
+        
+        def connected(res, p, q):
+            return find(res, p) == find(res, q)
+        
+        def union(res, p, q):
+            pid = find(res, p)
+            qid = find(res, q)
+            res[pid] = qid
+        
+        res = [i for i in range(m*n)]
+        visited = [0 for i in range(m*n)]
+        out = []
+        grid = [[0]*m for i in range(n)]
+        
+        count = 0
+        counter = 0
+        for i, j in positions:
+            counter += 1
+            index = i * m + j
+            if visited[index] == 1:
+                count -= 1
+            grid[i][j] = 1                   
+            queue = [index]            
+            while queue: 
+                temp = queue.pop(0)
+                visited[temp] = 1
+                r = temp / m
+                c = temp % m
+                if r - 1 >= 0 and grid[r-1][c] == 1:
+                    if not connected(res, temp, ((r-1)*m+c)):
+                        union(res, temp, ((r-1)*m+c))
+                        queue.append((r-1)*m+c)
+                        count -= 1
+                if r + 1 < n and grid[r+1][c] == 1:
+                    if not connected(res, temp, ((r+1)*m+c)):
+                        union(res, temp, ((r+1)*m+c))
+                        queue.append((r+1)*m+c)
+                        count -= 1
+                if c - 1 >= 0 and grid[r][c-1] == 1:
+                    if not connected(res, temp, (r*m+c-1)):
+                        union(res, temp, (r*m+c-1))
+                        queue.append(r*m+c-1)
+                        count -= 1
+                if c + 1 < m and grid[r][c+1] == 1:
+                    if not connected(res, temp, (r*m+c+1)):
+                        union(res, temp, (r*m+c+1))
+                        queue.append(r*m+c+1) 
+                        count -= 1
+            out.append(counter + count)
+        return out
+        
+   ## 323. Number of Connected Components in an Undirected Graph 
+Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge is a pair of nodes), write a function to find the number of connected components in an undirected graph.
+
+Example 1:
+
+     0        3
+
+     |          |
+
+     1 --- 2    4
+
+Given n = 5 and edges = [[0, 1], [1, 2], [3, 4]], return 2.
+
+Example 2:
+
+     0         4
+
+     |           |
+
+     1 --- 2 --- 3
+
+Given n = 5 and edges = [[0, 1], [1, 2], [2, 3], [3, 4]], return 1.
+
+ Note:
+
+You can assume that no duplicate edges will appear in edges. Since all edges are undirected, [0, 1] is the same as [1, 0] and thus will not appear together in edges.
+
+class Solution(object):
+    def countComponents(self, n, edges):
+        """
+        :type n: int
+        :type edges: List[List[int]]
+        :rtype: int
+        """
+        p = [i for i in range(n)]
+        def find(x):
+            if p[x] != x:
+                p[x] = find(p[x])
+            return p[x]
+        def union(x, y):
+            p[find(x)] = find(y)
+        
+        for i, j in edges:
+            union(i, j)
+        
+        return len(set(p))
+        
+  #1516. Move Sub-Tree of N-Ary Tree
+  Given the root of an N-ary tree of unique values, and two nodes of the tree p and q.
+
+You should move the subtree of the node p to become a direct child of node q. If p is already a direct child of q, don't change anything. Node p must be the last child in the children list of node q.
+
+Return the root of the tree after adjusting it.
+
+ 
+
+There are 3 cases for nodes p and q:
+
+Node q is in the sub-tree of node p.
+Node p is in the sub-tree of node q.
+Neither node p is in the sub-tree of node q nor node q is in the sub-tree of node p.
+In cases 2 and 3, you just need to move p (with its sub-tree) to be a child of q, 
+but in case 1 the tree may be disconnected, thus you need to reconnect the tree again. 
+Please read the examples carefully before solving this problem.
+
+class Solution:
+    def moveSubTree(self, root: 'Node', p: 'Node', q: 'Node') -> 'Node':
+        # return True if y is under the subtree of x
+        def in_subtree(y, x):
+            nodes = [x]
+            while len(nodes) > 0:
+                new_nodes = []
+                for u in nodes:
+                    if y == u:
+                        return True
+                    new_nodes += u.children
+                nodes = new_nodes
+            return False
+        
+        # returns the parent node of x and x's position in the children array
+        def get_parent(node, x):
+            for i in range(len(node.children)):
+                if x == node.children[i]:
+                    return [node, i]
+                result = get_parent(node.children[i], x)
+                if result != None:
+                    return result
+            return None
+        
+        # case A: p is a direct child of q, so do nothing
+        for c in q.children:
+            if p == c:
+                return root
+        
+        # case B: q is in the subtree of p (p could potentially be the root)
+        if in_subtree(q, p):
+            # First cut out q from p's subtree
+            q_parent, child_node_idx = get_parent(root, q)
+            q_parent.children = q_parent.children[:child_node_idx] + q_parent.children[child_node_idx+1:]
+            if p != root:
+                # Graft q to be under the parent of p at the same index as p, replacing p's place, 
+                p_parent, child_node_idx = get_parent(root, p)
+                p_parent.children[child_node_idx] = q
+                # Finally add p to the end of q's children
+                q.children.append(p)
+                return root
+            else:
+                # q will be the new root with p as its child
+                q.children.append(p)
+                return q
+                
+        # Case C, the normal case: q is not in the subtree of p (so p also cannot be the root because
+        # if it were, q would be in the subtree of p)
+        p_parent, p_idx = get_parent(root, p) # p is not the root so its parent is guaranteed to exist
+        # Cut p out of its parent's children list
+        p_parent.children = p_parent.children[:p_idx] + p_parent.children[p_idx+1:]
+        # And add it to q's children
+        q.children.append(p)
+        return root
