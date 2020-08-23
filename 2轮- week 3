@@ -217,8 +217,8 @@ class Solution:
             return None
         
         # case A: p is a direct child of q, so do nothing
-        for c in q.children:
-            if p == c:
+        for node in q.children:
+            if p == node:
                 return root
         
         # case B: q is in the subtree of p (p could potentially be the root)
@@ -227,7 +227,7 @@ class Solution:
             q_parent, child_node_idx = get_parent(root, q)
             q_parent.children = q_parent.children[:child_node_idx] + q_parent.children[child_node_idx+1:]
             if p != root:
-                # Graft q to be under the parent of p at the same index as p, replacing p's place, 
+                # put q at the same index as p, replacing p's place, 
                 p_parent, child_node_idx = get_parent(root, p)
                 p_parent.children[child_node_idx] = q
                 # Finally add p to the end of q's children
@@ -238,8 +238,8 @@ class Solution:
                 q.children.append(p)
                 return q
                 
-        # Case C, the normal case: q is not in the subtree of p (so p also cannot be the root because
-        # if it were, q would be in the subtree of p)
+        # Case C: Neither node p is in the sub-tree of node q nor node q is in the sub-tree of node p
+        # (so p also cannot be the root because if it were, q would be in the subtree of p)
         p_parent, p_idx = get_parent(root, p) # p is not the root so its parent is guaranteed to exist
         # Cut p out of its parent's children list
         p_parent.children = p_parent.children[:p_idx] + p_parent.children[p_idx+1:]
