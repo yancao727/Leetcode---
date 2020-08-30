@@ -1,0 +1,126 @@
+# 642 Design Search Autocomplete System (tire)
+class TireNode:
+    def __init__(self):
+        self.children = dict()
+        self.sentences = set()
+
+class AutocompleteSystem(object):
+    def __init__(self, sentences,times):
+        """
+        :type sentences: List[str]
+        :type times: List[int]
+        """
+        self.buffer = ''
+        self.stimes = collections.defaultdict(int)
+        self.tire = TireNode()
+        for s, t in zip(sentences, times):
+            self.stimes[s] = t
+            self.addSentence(s)
+        self.tnode = self.tire
+    
+    def input(self, c):
+        """
+        :type c: str
+        :rtype: List[str]
+        """
+        ans = []
+        if c != "#":
+            self.buffer += c
+            if self.tnode:
+                self.tnode = self.tnode.children.get(c)
+            if self.tnode:
+                ans = sorted(self.tnode.sentences, key = lambda x: (-self.stimes[x],x))[:3]
+        else:
+            self.stimes[self.buffer] += 1
+            self.addSentence(self.buffer)
+            self.buffer = ''
+            self.tnode = self.tire
+        return ans
+    
+    def addSentence(self, sentence):
+        node = self.tire
+        for letter in sentence:
+            child = node.children.get(letter)
+            if child is None:
+                child = TireNode()
+                node.children[letter] = child
+            node = child
+            child.sentencs.add(sentence)
+            
+## 308. Range Sum Query 2D - Mutable
+Given a 2D matrix matrix, find the sum of the elements inside the rectangle defined by its upper left corner (row1, col1) and lower right corner (row2, col2).
+
+def __init__(self, matrix):
+        """
+        :type matrix: List[List[int]]
+
+        element m[i][j] in self.matrix means sum of previous elements in this row,
+        namely sum(m[i][0] + m[i][1] + ... + m[i][j])
+        """
+        for row in matrix:
+            for col in range(1, len(row)):
+                row[col] += row[col - 1]
+        self.matrix = matrix
+
+    def update(self, row, col, val):
+        """
+        :type row: int
+        :type col: int
+        :type val: int
+        :rtype: void
+
+        original means the single element value in original matrix
+        """
+        original = self.matrix[row][col]
+        if col != 0:
+            original -= self.matrix[row][col - 1]
+
+        diff = original - val
+
+        for y in range(col, len(self.matrix[0])):  # update elements in the row
+            self.matrix[row][y] -= diff
+
+    def sumRegion(self, row1, col1, row2, col2):
+        """
+        :type row1: int
+        :type col1: int
+        :type row2: int
+        :type col2: int
+        :rtype: int
+
+        region sum is the sum of range sum in every row from row1 to row2
+        as the above definition of self.matrix
+        each range sum could be calculated as (m[row][col2] - m[row][col1 - 1])
+        """
+        region_sum = 0
+        for x in range(row1, row2 + 1):
+            region_sum += self.matrix[x][col2]
+            if col1 != 0:
+                region_sum -= self.matrix[x][col1 - 1]
+        return region_sum
+        
+ 
+ ## 1506. Find Root of N-Ary Tree
+Given all the nodes of an N-ary tree as an array  Node[] tree where each node has a unique value.
+
+Find and return the root of the N-ary tree.
+
+Nary-Tree input serialization is represented in their level order traversal, each group of children is separated by the null value (See examples).
+
+Follow up: Can you find the root of the tree with O(1) additional memory space?
+
+Notes:
+
+The following input is only given to testing purposes.
+You will receive as input a list of all nodes of the n-ary tree in any order.
+
+class Solution:
+    def findRoot(self, tree: List['Node']) -> 'Node':
+        ans = 0
+        for node in tree:
+            ans ^= node.val
+            for child in node.children:
+                ans ^= child.val
+        for node in tree:
+            if ans == node.val:
+                return node
